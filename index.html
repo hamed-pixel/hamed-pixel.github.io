@@ -1,0 +1,610 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#1f2a44">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>Smartech Stock</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap">
+<style>
+/* Layout: one column, sticky brand bar, thumb-reach tab bar fixed to the bottom. Stock-room label feel: navy + brass. */
+:root{
+  --bg:#f3f5f9; --card:#ffffff; --fg:#18202f; --muted:#5b6475; --line:#d8dde7;
+  --navy:#1f2a44; --gold:#c9a227; --goldInk:#7a5d0c; --goldSoft:#f7edc8;
+  --ok:#1f7a4d; --okSoft:#dff2e8; --warn:#9a5b00; --warnSoft:#fdf0d5; --bad:#b3261e; --badSoft:#fbe3e1;
+  --field:#ffffff; --onNavy:#ffffff;
+  --display:"Barlow Semi Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1420; --card:#182033; --fg:#e8ecf4; --muted:#9aa4b8; --line:#2c3650;
+  --navy:#2b3a5e; --gold:#d9b443; --goldInk:#e7c766; --goldSoft:#3a3220;
+  --ok:#6fd3a0; --okSoft:#173528; --warn:#f0b65a; --warnSoft:#3a2c14; --bad:#ff8a80; --badSoft:#3d1c1b;
+  --field:#121a2b; --onNavy:#ffffff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1420; --card:#182033; --fg:#e8ecf4; --muted:#9aa4b8; --line:#2c3650;
+  --navy:#2b3a5e; --gold:#d9b443; --goldInk:#e7c766; --goldSoft:#3a3220;
+  --ok:#6fd3a0; --okSoft:#173528; --warn:#f0b65a; --warnSoft:#3a2c14; --bad:#ff8a80; --badSoft:#3d1c1b;
+  --field:#121a2b; --onNavy:#ffffff; color-scheme:dark}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--bg);color:var(--fg);font:16px/1.45 var(--body);font-variant-numeric:tabular-nums}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--navy);color:var(--onNavy);padding:12px 16px;border-bottom:3px solid var(--gold)}
+header .wrap{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font:700 1.35rem/1.1 var(--display);letter-spacing:.02em}
+.brand small{display:block;font:500 .78rem var(--body);opacity:.8;letter-spacing:.06em;text-transform:uppercase;margin-top:2px}
+.sync{font-size:.85rem;opacity:.9}
+.linkbtn{min-height:0;padding:4px 2px;border:0;background:none;color:inherit;font:inherit;text-decoration:underline}
+main{max-width:720px;margin:0 auto;padding:16px 16px 110px}
+h2{font:700 1.25rem var(--display);margin:4px 0 12px;text-wrap:balance;letter-spacing:.01em}
+h3{font:600 1.05rem var(--display);margin:0 0 8px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+section.panel{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:14px}
+.stack{display:grid;gap:16px}
+label{font-weight:600;font-size:.9rem;display:grid;gap:6px;min-width:0}
+input,select{font:inherit;font-size:1.05rem;min-height:50px;width:100%;padding:10px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--field);color:var(--fg)}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.line{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:start;padding:12px 0;border-top:1px dashed var(--line)}
+.line:first-child{border-top:0}
+.line .n{font:700 1.2rem var(--display);color:var(--goldInk);padding-top:12px}
+.line .f{display:grid;grid-template-columns:1fr;gap:8px;min-width:0}
+.line .qu{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+button{font:600 1rem var(--body);min-height:50px;padding:10px 16px;border-radius:8px;border:1.5px solid var(--line);background:var(--card);color:var(--fg);cursor:pointer;touch-action:manipulation}
+button:active{transform:translateY(1px)}
+button:disabled{opacity:.5;cursor:not-allowed}
+.primary{background:var(--navy);color:var(--onNavy);border-color:var(--navy);box-shadow:inset 0 -3px 0 var(--gold)}
+.gold{background:var(--gold);color:#1b1608;border-color:var(--gold)}
+.ghost{border-style:dashed;color:var(--goldInk);border-color:var(--gold);background:transparent}
+.danger{color:var(--bad);border-color:var(--bad);background:transparent}
+.danger.armed{background:var(--bad);color:#fff}
+.icon{min-width:50px;padding:0;font-size:1.3rem;line-height:1}
+.btns{display:flex;flex-wrap:wrap;gap:8px}
+.btns>*{flex:1 1 140px}
+.card{border:1px solid var(--line);border-radius:10px;padding:14px;background:var(--card);display:grid;gap:10px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;color:var(--muted);font-size:.9rem}
+.meta b{color:var(--fg);font-weight:600}
+.chip{display:inline-block;font:600 .78rem var(--body);padding:3px 9px;border-radius:999px;letter-spacing:.02em}
+.chip.p{background:var(--warnSoft);color:var(--warn)} .chip.r{background:var(--okSoft);color:var(--ok)}
+ol.items{margin:0;padding-left:22px;display:grid;gap:2px}
+.qty{font-weight:600}
+pre.out{white-space:pre-wrap;font:15px/1.45 var(--body);background:var(--goldSoft);border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:8px;padding:12px;margin:0;overflow-wrap:anywhere}
+.notice{padding:10px 12px;border-radius:8px;font-weight:500}
+.notice.ok{background:var(--okSoft);color:var(--ok)} .notice.err{background:var(--badSoft);color:var(--bad)} .notice.info{background:var(--goldSoft);color:var(--goldInk)}
+.empty{color:var(--muted);text-align:center;padding:18px 8px;border:1.5px dashed var(--line);border-radius:10px}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg button{flex:1 1 auto;min-height:44px;padding:8px 12px;font-size:.95rem}
+.seg button[aria-pressed="true"]{background:var(--navy);color:var(--onNavy);border-color:var(--navy)}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:.95rem}
+th{background:var(--navy);color:var(--gold);font:600 .85rem var(--display);text-transform:uppercase;letter-spacing:.06em;text-align:left;padding:10px}
+td{padding:9px 10px;border-top:1px solid var(--line)}
+td.num,th.num{text-align:right}
+tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--bg) 70%,var(--card))}
+tr.gt td{background:var(--goldSoft)!important;font-weight:600;color:var(--goldInk)}
+tr.grand td{background:var(--navy)!important;color:var(--gold);font-weight:700;border-top:3px solid var(--gold)}
+tr.grp td{background:var(--card)!important;font:700 1rem var(--display);color:var(--fg);padding-top:14px}
+.muted{color:var(--muted);font-size:.88rem}
+nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--card);border-top:1px solid var(--line);display:grid;grid-auto-flow:column;grid-auto-columns:1fr;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs button{border:0;border-radius:0;min-height:62px;padding:8px 4px;white-space:nowrap;background:transparent;font:600 .95rem var(--display);letter-spacing:.03em;text-transform:uppercase;color:var(--muted);position:relative}
+nav.tabs button[aria-selected="true"]{color:var(--fg)}
+nav.tabs button[aria-selected="true"]::before{content:"";position:absolute;top:0;left:20%;right:20%;height:4px;background:var(--gold);border-radius:0 0 4px 4px}
+.badge{display:inline-block;min-width:22px;padding:1px 6px;margin-left:4px;border-radius:999px;background:var(--gold);color:#1b1608;font:700 .75rem var(--body)}
+textarea.fallback{width:100%;min-height:140px;font:14px var(--body);background:var(--field);color:var(--fg);border:1.5px solid var(--line);border-radius:8px;padding:10px}
+@media (max-width:420px){.row2{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body{margin:0;padding-top:env(safe-area-inset-top,0px)}
+</style>
+</head>
+<body>
+
+<header><div class="wrap"><div class="brand">Smartech Stock<small>White Pearl Trading L.L.C</small></div><div class="sync"><span id="sync">Connecting…</span><span id="who" hidden> · <span id="whoName"></span> · <button type="button" id="logout" class="linkbtn">Log out</button></span></div></div></header>
+
+<main>
+  <div id="ro" class="notice err" hidden>You can view but not change this list.</div>
+
+  <div id="setupMsg" class="notice err" hidden>The app is not connected to its database yet. Fill in config.js (see the setup guide).</div>
+
+  <section class="panel" id="login" hidden>
+    <h2>Log in</h2>
+    <form id="loginForm" class="stack" autocomplete="on">
+      <label>Username <input id="lUser" autocomplete="username" autocapitalize="none" spellcheck="false" required placeholder="e.g. ali"></label>
+      <label>Password <input id="lPass" type="password" autocomplete="current-password" required></label>
+      <button class="primary" id="loginBtn">Log in</button>
+      <div id="loginMsg" hidden></div>
+    </form>
+    <p class="muted">Forgot your password? Ask the admin to make you a new account.</p>
+  </section>
+
+  <section class="panel" id="inactive" hidden>
+    <h2>Account not active</h2>
+    <p>Your account is switched off. Ask the admin to activate it.</p>
+    <button type="button" id="logout2">Log out</button>
+  </section>
+
+  <!-- REQUEST -->
+  <div id="tab-request" class="stack">
+    <section class="panel" id="reqPanel">
+      <h2 id="reqTitle">New stock request</h2>
+      <div class="row2">
+        <label>Date <input type="date" id="rDate"></label>
+        <label>Requested by <input id="rName" list="names" autocomplete="off" placeholder="Your name"></label>
+      </div>
+      <div id="lines"></div>
+      <button class="ghost" id="addLine" type="button">+ Add another product</button>
+      <div class="btns"><button class="primary" id="saveReq" type="button">Save request</button><button id="cancelEdit" type="button" hidden>Cancel edit</button></div>
+      <div id="reqMsg" hidden></div>
+    </section>
+
+    <section class="panel" id="savedPanel" hidden>
+      <h2>Request saved</h2>
+      <pre class="out" id="savedText"></pre>
+      <button class="gold" id="copySaved" type="button">Copy list for WhatsApp</button>
+      <div id="copyMsg" hidden></div>
+    </section>
+
+    <div>
+      <h3>Recent requests</h3>
+      <div id="recent" class="stack"><div class="empty">Requests appear here once someone saves the first one above.</div></div>
+    </div>
+  </div>
+
+  <!-- RECEIVE -->
+  <div id="tab-receive" class="stack" hidden>
+    <h2>Pending items</h2>
+    <div id="pending" class="stack"><div class="empty">Nothing is waiting. New requests show up here until they are received.</div></div>
+  </div>
+
+  <!-- REPORT -->
+  <div id="tab-report" class="stack" hidden>
+    <section class="panel">
+      <h2>Stock report</h2>
+      <div><h3>Period</h3><div class="seg" id="period"></div></div>
+      <div class="row2" id="custom" hidden>
+        <label>From <input type="date" id="from"></label>
+        <label>To <input type="date" id="to"></label>
+      </div>
+      <div><h3>Report type</h3><div class="seg" id="rtype"></div></div>
+      <div class="btns">
+        <button class="primary" id="dlx" type="button">Download Excel</button>
+        <button id="copyRep" type="button">Copy report</button>
+        <button id="mailRep" type="button">Email report</button>
+      </div>
+      <div id="repMsg" hidden></div>
+    </section>
+    <div id="repSummary" class="muted"></div>
+    <div class="tablewrap" id="repTable"><table><thead><tr><th>Date</th><th>Product</th><th class="num">Order qty</th><th class="num">Received qty</th><th>Receiver</th></tr></thead><tbody id="repBody"></tbody></table></div>
+  </div>
+
+  <!-- TEAM (owner only) -->
+  <div id="tab-team" class="stack" hidden>
+    <section class="panel">
+      <h2>Add a person</h2>
+      <form id="addUser" class="stack" autocomplete="off">
+        <div class="row2">
+          <label>Name <input id="nuName" placeholder="Ali Al-Balushi"></label>
+          <label>Username <input id="nuUser" autocapitalize="none" spellcheck="false" placeholder="ali"></label>
+        </div>
+        <div class="row2">
+          <label>Password <input id="nuPass" type="text" autocomplete="new-password" placeholder="At least 6 characters"></label>
+          <label>Access <select id="nuRole"><option value="staff">Staff</option><option value="admin">Admin</option></select></label>
+        </div>
+        <button class="primary" id="addBtn">Create account</button>
+        <div id="addMsg" hidden></div>
+      </form>
+    </section>
+    <div class="notice info"><b>Admin</b>: everything, including Confirm received, editing any item and Excel. <b>Staff</b>: make requests, edit or delete their own pending items, and view reports.</div>
+    <div><h3>People</h3><div id="team" class="stack"><div class="empty">No accounts yet. Add your first staff member above.</div></div></div>
+    <section class="panel">
+      <h2>Change my password</h2>
+      <form id="pwForm" class="stack"><label>New password <input id="newPw" type="password" autocomplete="new-password"></label><button>Change password</button><div id="pwMsg" hidden></div></form>
+    </section>
+  </div>
+</main>
+
+<nav class="tabs" role="tablist">
+  <button role="tab" id="t-request" aria-selected="true">Request</button>
+  <button role="tab" id="t-receive" aria-selected="false">Receive<span class="badge" id="pendBadge" hidden></span></button>
+  <button role="tab" id="t-report" aria-selected="false">Report</button>
+  <button role="tab" id="t-team" aria-selected="false" hidden>Team</button>
+</nav>
+
+<datalist id="products"></datalist><datalist id="names"></datalist>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="xlsx.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="config.js"></script>
+<script>
+// ponytail: live view holds the newest 1000 product lines; page by date if history outgrows that.
+const COMPANY='Smartech Stock · White Pearl Trading L.L.C';
+const DEFAULT_PRODUCTS=['Areon X Version','Dashboard Polish','Akra K2','Manual Shampoo','Tyre Polish','Bill Roll','Mask Tape','Down Paper','Kapra','Carbonic Air Freshner'];
+const UNITS=['pcs','box','can','packet','roll'];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const pad=n=>String(n).padStart(2,'0');
+const iso=d=>d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today=()=>iso(new Date());
+const dmy=s=>s?s.slice(8,10)+'/'+s.slice(5,7)+'/'+s.slice(0,4):'';
+const rid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+const num=v=>{const n=parseFloat(v);return isFinite(n)?n:0};
+const fmt=n=>Math.round(n*100)/100;
+const store={get(k,d){try{return localStorage.getItem(k)??d}catch{return d}},set(k,v){try{localStorage.setItem(k,v)}catch{}}};
+
+let db=null, canWrite=true, requests=[], items=[], editing=null;
+
+/* ---------- helpers ---------- */
+function msg(el,text,kind){el.className='notice '+kind;el.textContent=text;el.hidden=false;clearTimeout(el._t);if(kind!=='err')el._t=setTimeout(()=>el.hidden=true,5000)}
+async function copyText(text,msgEl,after){
+  try{await navigator.clipboard.writeText(text);msg(msgEl,'Copied. Paste it into WhatsApp.','ok')}
+  catch{msgEl.className='notice info';msgEl.hidden=false;msgEl.innerHTML='Copy is blocked here. Press and hold the text below, then Select all and Copy.<textarea class="fallback" readonly></textarea>';const t=msgEl.querySelector('textarea');t.value=text;t.focus();t.select()}
+}
+function itemsOf(reqId){return items.filter(i=>i.requestId===reqId).sort((a,b)=>(a.line||0)-(b.line||0))}
+function waText(req,list){
+  return ['*Stock Request – Smartech Stock*','Date: '+dmy(req.date),'Requested by: '+req.requester,'',...list.map((it,i)=>(i+1)+'. '+it.product+' – '+fmt(it.qty)+' '+it.unit)].join('\n');
+}
+function refreshLists(){
+  const prods=new Set(DEFAULT_PRODUCTS);items.forEach(i=>i.product&&prods.add(i.product));
+  $('products').innerHTML=[...prods].map(p=>'<option value="'+esc(p)+'">').join('');
+  const names=new Set();requests.forEach(r=>r.requester&&names.add(r.requester));items.forEach(i=>i.receiver&&names.add(i.receiver));
+  $('names').innerHTML=[...names].sort().map(p=>'<option value="'+esc(p)+'">').join('');
+}
+
+/* ---------- tabs ---------- */
+['request','receive','report','team'].forEach(t=>$('t-'+t).onclick=()=>{
+  ['request','receive','report','team'].forEach(x=>{$('tab-'+x).hidden=x!==t;$('t-'+x).setAttribute('aria-selected',x===t)});
+  store.set('tab',t);window.scrollTo(0,0);
+});
+
+/* ---------- request form ---------- */
+function lineEl(d={}){
+  const w=document.createElement('div');w.className='line';w.dataset.id=d.id||'';w.dataset.locked=d.status==='received'?'1':'';
+  const lock=d.status==='received';
+  w.innerHTML='<div class="n"></div><div class="f">'+
+    '<label>Product <input class="p" list="products" autocomplete="off" placeholder="Start typing…" value="'+esc(d.product||'')+'"'+(lock?' disabled':'')+'></label>'+
+    '<div class="qu"><label>Qty <input class="q" type="number" inputmode="decimal" min="0" step="any" value="'+(d.qty??'')+'"'+(lock?' disabled':'')+'></label>'+
+    '<label>Unit <select class="u"'+(lock?' disabled':'')+'>'+UNITS.map(u=>'<option'+(u===(d.unit||'pcs')?' selected':'')+'>'+u+'</option>').join('')+'</select></label>'+
+    '<label>&nbsp;<button class="icon danger rm" type="button" aria-label="Remove product"'+(lock?' disabled':'')+'>✕</button></label></div>'+
+    (lock?'<div class="muted">Already received – cannot change.</div>':'')+'</div>';
+  w.querySelector('.rm').onclick=()=>{if($('lines').children.length>1){w.remove();renumber()}else{w.querySelector('.p').value='';w.querySelector('.q').value=''}};
+  return w;
+}
+function renumber(){[...$('lines').children].forEach((l,i)=>l.querySelector('.n').textContent=i+1)}
+function addLine(d){$('lines').appendChild(lineEl(d));renumber()}
+function resetForm(){
+  editing=null;$('reqTitle').textContent='New stock request';$('saveReq').textContent='Save request';$('cancelEdit').hidden=true;
+  $('rDate').value=today();$('rName').value=store.get('me','');$('lines').innerHTML='';addLine();
+}
+$('addLine').onclick=()=>{addLine();$('lines').lastElementChild.querySelector('.p').focus()};
+$('cancelEdit').onclick=resetForm;
+
+$('saveReq').onclick=async()=>{
+  const m=$('reqMsg'),date=$('rDate').value,requester=$('rName').value.trim();
+  const lines=[...$('lines').children].map(l=>({id:l.dataset.id,locked:!!l.dataset.locked,product:l.querySelector('.p').value.trim(),qty:num(l.querySelector('.q').value),unit:l.querySelector('.u').value}));
+  const filled=lines.filter(l=>l.product||l.qty);
+  if(!date)return msg(m,'Pick the request date.','err');
+  if(!requester)return msg(m,'Enter the name of the person requesting.','err');
+  if(!filled.length)return msg(m,'Add at least one product.','err');
+  const bad=filled.find(l=>!l.locked&&(!l.product||!(l.qty>0)));
+  if(bad)return msg(m,'Each product needs a name and a quantity above 0.','err');
+  if(!db)return msg(m,'Not connected to the shared list yet. Wait a moment and try again.','err');
+  $('saveReq').disabled=true;
+  try{
+    const reqId=editing||rid(), col=db.collection('items');
+    const head={date,requester};
+    if(editing){await db.doc('requests/'+reqId).update(head)}
+    else await db.doc('requests/'+reqId).set({...head,createdAt:Date.now(),createdBy:me});
+    const keep=new Set();
+    await Promise.all(filled.map((l,i)=>{
+      if(l.id){keep.add(l.id);return l.locked?(isAdmin()?col.doc(l.id).update({date,requester,line:i}):null):col.doc(l.id).update({date,requester,line:i,product:l.product,qty:l.qty,unit:l.unit})}
+      const id=rid();keep.add(id);
+      return col.doc(id).set({requestId:reqId,date,requester,line:i,product:l.product,qty:l.qty,unit:l.unit,status:'pending',createdAt:Date.now(),createdBy:me});
+    }));
+    if(editing)await Promise.all(itemsOf(reqId).filter(i=>!keep.has(i.id)&&i.status!=='received').map(i=>col.doc(i.id).delete()));
+    store.set('me',requester);
+    const list=filled.map(l=>({product:l.product,qty:l.qty,unit:l.unit}));
+    $('savedText').textContent=waText(head,list);$('savedPanel').hidden=false;
+    msg(m,editing?'Request updated.':'Request saved.','ok');
+    resetForm();$('savedPanel').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){msg(m,saveErr(e),'err')}
+  finally{$('saveReq').disabled=!canWrite}
+};
+$('copySaved').onclick=()=>copyText($('savedText').textContent,$('copyMsg'));
+function saveErr(e){
+    if(e&&e.code==='permission-denied')return 'You don\'t have permission to do that. Ask the admin.';
+  return 'Could not save ('+(e&&e.code||'network')+'). Check your connection and tap Save again.';
+}
+
+function startEdit(reqId){
+  const r=requests.find(x=>x.id===reqId);if(!r)return;
+  editing=reqId;$('reqTitle').textContent='Edit request';$('saveReq').textContent='Save changes';$('cancelEdit').hidden=false;
+  $('rDate').value=r.date;$('rName').value=r.requester;$('lines').innerHTML='';
+  itemsOf(reqId).forEach(addLine);if(!$('lines').children.length)addLine();
+  $('t-request').click();$('reqPanel').scrollIntoView({behavior:'smooth'});
+}
+
+function renderRecent(){
+  const box=$('recent');
+  const list=requests.filter(r=>itemsOf(r.id).length).slice(0,15);
+  if(!list.length){box.innerHTML='<div class="empty">Requests appear here once someone saves the first one above.</div>';return}
+  box.innerHTML='';
+  list.forEach(r=>{
+    const its=itemsOf(r.id),p=its.filter(i=>i.status!=='received').length,rc=its.length-p;
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<div class="meta"><span><b>'+dmy(r.date)+'</b></span><span>by <b>'+esc(r.requester)+'</b></span>'+
+      (p?'<span class="chip p">'+p+' pending</span>':'')+(rc?'<span class="chip r">'+rc+' received</span>':'')+'</div>'+
+      '<ol class="items">'+its.map(i=>'<li>'+esc(i.product)+' – <span class="qty">'+fmt(i.qty)+' '+esc(i.unit)+'</span></li>').join('')+'</ol>'+
+      '<div class="btns"><button type="button" class="e">Edit</button><button type="button" class="gold c">Copy list</button></div><div hidden></div>';
+    c.querySelector('.e').onclick=()=>startEdit(r.id);
+    c.querySelector('.e').disabled=!canWrite||!p;
+    c.querySelector('.e').hidden=!mine(r);
+    c.querySelector('.c').onclick=()=>copyText(waText(r,its),c.lastElementChild);
+    box.appendChild(c);
+  });
+}
+
+/* ---------- receive ---------- */
+function renderPending(){
+  const box=$('pending'),list=items.filter(i=>i.status!=='received').sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:(a.line||0)-(b.line||0));
+  $('pendBadge').hidden=!list.length;$('pendBadge').textContent=list.length;
+  // keep cards being typed in; rebuild otherwise
+  const open=box.querySelector('.card.editing');if(open&&list.some(i=>i.id===open.dataset.id))return;
+  if(!list.length){box.innerHTML='<div class="empty">Nothing is waiting. New requests show up here until they are received.</div>';return}
+  box.innerHTML='';
+  list.forEach(it=>box.appendChild(pendingCard(it)));
+}
+function pendingCard(it){
+  const c=document.createElement('div');c.className='card';c.dataset.id=it.id;
+  const me=store.get('me','');
+  c.innerHTML='<div class="meta"><span class="chip p">Pending</span><span><b>'+dmy(it.date)+'</b></span><span>by <b>'+esc(it.requester)+'</b></span></div>'+
+    '<div style="font:600 1.15rem var(--display)">'+esc(it.product)+' – '+fmt(it.qty)+' '+esc(it.unit)+'</div>'+
+    '<div class="row2"><label>Received qty <input class="rq" type="number" inputmode="decimal" min="0" step="any" value="'+fmt(it.qty)+'"></label>'+
+    '<label>Received date <input class="rd" type="date" value="'+today()+'"></label></div>'+
+    '<label>Receiver name <input class="rn" list="names" autocomplete="off" value="'+esc(me)+'" placeholder="Who received it"></label>'+
+    '<button class="primary ok" type="button">Confirm received</button>'+
+    '<div class="btns"><button class="ed" type="button">Edit item</button><button class="danger del" type="button">Delete</button></div><div class="m" hidden></div>';
+  c.addEventListener('input',()=>c.classList.add('editing'));
+  const m=c.querySelector('.m');
+  c.querySelector('.ok').onclick=async()=>{
+    const q=num(c.querySelector('.rq').value),n=c.querySelector('.rn').value.trim(),d=c.querySelector('.rd').value;
+    if(!(q>=0)||c.querySelector('.rq').value==='')return msg(m,'Enter the quantity received.','err');
+    if(!n)return msg(m,'Enter the receiver name.','err');
+    if(!d)return msg(m,'Pick the received date.','err');
+    c.querySelector('.ok').disabled=true;
+    try{await db.collection('items').doc(it.id).update({status:'received',receivedQty:q,receiver:n,receivedDate:d});store.set('me',n);c.classList.remove('editing');renderAll()}
+    catch(e){msg(m,saveErr(e),'err');c.querySelector('.ok').disabled=false}
+  };
+  c.querySelector('.ed').onclick=()=>{
+    c.classList.add('editing');
+    c.innerHTML='<div class="meta"><span class="chip p">Editing</span><span><b>'+dmy(it.date)+'</b></span><span>by <b>'+esc(it.requester)+'</b></span></div>'+
+      '<label>Product <input class="p" list="products" value="'+esc(it.product)+'"></label>'+
+      '<div class="row2"><label>Qty <input class="q" type="number" inputmode="decimal" min="0" step="any" value="'+fmt(it.qty)+'"></label>'+
+      '<label>Unit <select class="u">'+UNITS.map(u=>'<option'+(u===it.unit?' selected':'')+'>'+u+'</option>').join('')+'</select></label></div>'+
+      '<div class="btns"><button class="primary sv" type="button">Save</button><button class="cx" type="button">Cancel</button></div><div class="m" hidden></div>';
+    const m2=c.querySelector('.m');
+    c.querySelector('.cx').onclick=()=>{c.classList.remove('editing');renderAll()};
+    c.querySelector('.sv').onclick=async()=>{
+      const p=c.querySelector('.p').value.trim(),q=num(c.querySelector('.q').value);
+      if(!p||!(q>0))return msg(m2,'Product and a quantity above 0 are required.','err');
+      try{await db.collection('items').doc(it.id).update({product:p,qty:q,unit:c.querySelector('.u').value});c.classList.remove('editing');renderAll()}
+      catch(e){msg(m2,saveErr(e),'err')}
+    };
+  };
+  const del=c.querySelector('.del');
+  del.onclick=async()=>{
+    if(!del.classList.contains('armed')){del.classList.add('armed');del.textContent='Tap again to delete';c.classList.add('editing');
+      clearTimeout(del._t);del._t=setTimeout(()=>{del.classList.remove('armed');del.textContent='Delete';c.classList.remove('editing')},4000);return}
+    clearTimeout(del._t);del.disabled=true;
+    try{
+      await db.collection('items').doc(it.id).delete();
+      if(!items.some(i=>i.requestId===it.requestId&&i.id!==it.id))await db.doc('requests/'+it.requestId).delete();
+      c.classList.remove('editing');renderAll();
+    }catch(e){msg(m,saveErr(e),'err');del.disabled=false}
+  };
+  [c.querySelector('.ok'),c.querySelector('.ed'),del].forEach(b=>b.disabled=!canWrite);
+  if(!isAdmin()){ // staff: no receiving; edit/delete only what they requested
+    c.querySelectorAll('.row2,label:has(.rn),.ok').forEach(e=>e.hidden=true);
+    c.querySelector('.btns').hidden=!mine(it);
+    if(!mine(it))c.insertAdjacentHTML('beforeend','<div class="muted">An admin confirms this when it arrives.</div>');
+  }
+  return c;
+}
+
+/* ---------- report ---------- */
+const PERIODS=[['today','Today'],['7d','Last 7 days'],['month','This month'],['last','Last month'],['all','All'],['custom','Custom']];
+const TYPES=[['Name','Name-wise'],['Day','Day-wise'],['Month','Month-wise']];
+let period=store.get('period','month'),rtype=store.get('rtype','Name');
+function seg(box,opts,get,set){box.innerHTML='';opts.forEach(([k,l])=>{const b=document.createElement('button');b.type='button';b.textContent=l;b.setAttribute('aria-pressed',get()===k);b.onclick=()=>{set(k);seg(box,opts,get,set);renderReport()};box.appendChild(b)})}
+function range(){
+  const d=new Date(),y=d.getFullYear(),mo=d.getMonth();
+  switch(period){
+    case 'today':return[today(),today(),'Today, '+dmy(today())];
+    case '7d':{const s=new Date(d);s.setDate(d.getDate()-6);return[iso(s),today(),dmy(iso(s))+' – '+dmy(today())]}
+    case 'month':{const s=iso(new Date(y,mo,1));return[s,today(),dmy(s)+' – '+dmy(today())]}
+    case 'last':{const s=iso(new Date(y,mo-1,1)),e=iso(new Date(y,mo,0));return[s,e,dmy(s)+' – '+dmy(e)]}
+    case 'custom':{const f=$('from').value||'0000-01-01',t=$('to').value||'9999-12-31';return[f,t,($('from').value?dmy(f):'Start')+' – '+($('to').value?dmy(t):'Today')]}
+    default:return['0000-01-01','9999-12-31','All dates'];
+  }
+}
+const MONTHS=['January','February','March','April','May','June','July','August','September','October','November','December'];
+function reportModel(){
+  const [f,t,label]=range();
+  const rows=items.filter(i=>i.date>=f&&i.date<=t).map(i=>({date:i.date,product:i.product,unit:i.unit,ordered:num(i.qty),received:i.status==='received'?num(i.receivedQty):0,receiver:i.status==='received'?i.receiver:''}))
+    .sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:a.product.localeCompare(b.product));
+  const key=r=>rtype==='Name'?(r.receiver||'Not received yet'):rtype==='Day'?r.date:r.date.slice(0,7);
+  const lab=k=>rtype==='Day'?dmy(k):rtype==='Month'?MONTHS[+k.slice(5,7)-1]+' '+k.slice(0,4):k;
+  const g=new Map();rows.forEach(r=>{const k=key(r);g.has(k)||g.set(k,[]);g.get(k).push(r)});
+  let keys=[...g.keys()].sort();if(rtype==='Name')keys.sort((a,b)=>(a==='Not received yet')-(b==='Not received yet')||a.localeCompare(b));
+  const groups=keys.map(k=>({label:lab(k),rows:g.get(k)}));
+  const bn=new Map(),bp=new Map();
+  rows.forEach(r=>{const n=r.receiver||'Not received yet';const a=bn.get(n)||{name:n,items:0,ordered:0,received:0};a.items++;a.ordered+=r.ordered;a.received+=r.received;bn.set(n,a);
+    const pk=r.product+'|'+r.unit;const p=bp.get(pk)||{product:r.product,unit:r.unit,ordered:0,received:0};p.ordered+=r.ordered;p.received+=r.received;bp.set(pk,p)});
+  const now=new Date();
+  return{company:COMPANY,title:'Stock Report',periodLabel:label,groupBy:rtype,groups,rows,
+    byName:[...bn.values()].sort((a,b)=>b.received-a.received||a.name.localeCompare(b.name)),
+    byProduct:[...bp.values()].sort((a,b)=>a.product.localeCompare(b.product)||a.unit.localeCompare(b.unit)),
+    generated:dmy(today())+' '+pad(now.getHours())+':'+pad(now.getMinutes())};
+}
+function byUnit(rows,f){const u={};rows.forEach(r=>u[r.unit]=(u[r.unit]||0)+r[f]);return Object.keys(u).sort().map(k=>fmt(u[k])+' '+k).join(' · ')||'0'}
+function renderReport(){
+  $('custom').hidden=period!=='custom';store.set('period',period);store.set('rtype',rtype);
+  const m=reportModel(),b=$('repBody');
+  $('repSummary').textContent=m.periodLabel+' · '+m.rows.length+' line'+(m.rows.length===1?'':'s')+'. Totals are shown per unit.';
+  if(!m.rows.length){b.innerHTML='<tr><td colspan="5"><div class="empty">No requests in this period. Pick another period or add a request.</div></td></tr>';return}
+  let h='';
+  m.groups.forEach(g=>{
+    h+='<tr class="grp"><td colspan="5">'+esc(g.label)+'</td></tr>';
+    g.rows.forEach(r=>h+='<tr><td>'+dmy(r.date)+'</td><td>'+esc(r.product)+'</td><td class="num">'+fmt(r.ordered)+' '+esc(r.unit)+'</td><td class="num">'+(r.receiver?fmt(r.received)+' '+esc(r.unit):'–')+'</td><td>'+(r.receiver?esc(r.receiver):'<span class="chip p">Pending</span>')+'</td></tr>');
+    h+='<tr class="gt"><td colspan="2">Total – '+esc(g.label)+'</td><td class="num">'+byUnit(g.rows,'ordered')+'</td><td class="num">'+byUnit(g.rows,'received')+'</td><td>'+g.rows.length+' lines</td></tr>';
+  });
+  h+='<tr class="grand"><td colspan="2">Grand total</td><td class="num">'+byUnit(m.rows,'ordered')+'</td><td class="num">'+byUnit(m.rows,'received')+'</td><td>'+m.rows.length+' lines</td></tr>';
+  b.innerHTML=h;
+}
+function reportText(m){
+  const out=['*'+COMPANY+'*','Stock Report – '+TYPES.find(t=>t[0]===rtype)[1],'Period: '+m.periodLabel,''];
+  if(!m.rows.length)out.push('No requests in this period.');
+  m.groups.forEach(g=>{
+    out.push('▸ '+g.label);
+    g.rows.forEach(r=>out.push('  '+dmy(r.date)+'  '+r.product+': ordered '+fmt(r.ordered)+' '+r.unit+', received '+(r.receiver?fmt(r.received)+' '+r.unit+' ('+r.receiver+')':'– pending')));
+    out.push('  Total: ordered '+byUnit(g.rows,'ordered')+' | received '+byUnit(g.rows,'received'),'');
+  });
+  if(m.rows.length)out.push('GRAND TOTAL: ordered '+byUnit(m.rows,'ordered')+' | received '+byUnit(m.rows,'received'));
+  return out.join('\n');
+}
+$('from').onchange=$('to').onchange=renderReport;
+$('copyRep').onclick=()=>copyText(reportText(reportModel()),$('repMsg'));
+$('mailRep').onclick=()=>{
+  const m=reportModel(),body=reportText(m).replace(/\*/g,'');
+  location.href='mailto:?subject='+encodeURIComponent('Smartech Stock Report – '+m.periodLabel)+'&body='+encodeURIComponent(body.slice(0,1800)+(body.length>1800?'\n…(shortened – use Download Excel for the full report)':''));
+  msg($('repMsg'),'Opening your mail app. If nothing opens, tap Copy report and paste it into an email.','info');
+};
+$('dlx').onclick=async()=>{
+  const el=$('repMsg'),m=reportModel();
+  if(!m.rows.length)return msg(el,'There is nothing to download for this period. Pick another period first.','err');
+  if(!window.JSZip||!window.buildStockXlsx)return msg(el,'Download failed: the Excel builder did not load. Check your internet connection and reload the app.','err');
+  $('dlx').disabled=true;
+  try{
+    const blob=await buildStockXlsx(JSZip,m).generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const [f]=range(), name='Smartech-Stock-'+rtype+'-wise-'+(period==='all'?'all':dmy(f>'0000-01-01'?f:today()).replace(/\//g,'-'))+'.xlsx';
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(a.href),10000);
+    msg(el,'Excel file downloaded: '+name+'. Find it in your Downloads.','ok');
+  }catch(e){msg(el,'Download failed ('+((e&&e.message)||'unknown error')+'). Try again, or use Copy report.','err')}
+  finally{$('dlx').disabled=false}
+};
+
+/* ---------- accounts ---------- */
+// Usernames become hidden emails, so staff never need a real email address.
+const LOGIN_DOMAIN='staff.smartech-stock.app';
+const toEmail=u=>{u=u.trim().toLowerCase();return u.includes('@')?u:u+'@'+LOGIN_DOMAIN};
+let auth=null, me=null, isOwner=false, users={};
+const role=()=>isOwner?'admin':(users[me]&&users[me].active&&users[me].role)||null;
+const isAdmin=()=>role()==='admin';
+const mine=x=>isAdmin()||(me&&x.createdBy===me);
+const myName=()=>isOwner?'Admin':(users[me]&&users[me].name)||'';
+
+function renderAll(){applyRole();refreshLists();renderRecent();renderPending();renderReport();renderTeam()}
+function applyRole(){
+  const signedIn=!!me, r=role(), loaded=signedIn&&usersLoaded;
+  $('login').hidden=signedIn;
+  $('inactive').hidden=!(loaded&&!r);
+  const show=loaded&&!!r;
+  document.querySelector('nav.tabs').hidden=!show;
+  if(!show)['request','receive','report','team'].forEach(t=>$('tab-'+t).hidden=true);
+  else if(['request','receive','report','team'].every(t=>$('tab-'+t).hidden)){const t=store.get('tab','request');$('t-'+(t==='team'&&!isOwner?'request':t)).click()}
+  if(show&&!isOwner&&!$('rName').value)$('rName').value=myName(); // staff name pre-filled, still editable
+  $('who').hidden=!signedIn;$('whoName').textContent=myName()||'…';
+  $('t-team').hidden=!isOwner;
+  $('dlx').parentElement.hidden=!isAdmin(); // staff view reports only
+  $('t-receive').firstChild.textContent=isAdmin()?'Receive':'Pending';
+}
+function renderTeam(){
+  if(!isOwner)return;
+  const box=$('team'),ids=Object.keys(users).sort((a,b)=>(users[b].active-users[a].active)||users[a].name.localeCompare(users[b].name));
+  if(box.querySelector('select:focus'))return;
+  if(!ids.length){box.innerHTML='<div class="empty">No accounts yet. Add your first staff member above.</div>';return}
+  box.innerHTML='';
+  ids.forEach(id=>{
+    const u=users[id],c=document.createElement('div');c.className='card';
+    c.innerHTML='<div class="meta"><b style="font-size:1.05rem"></b><span></span>'+(u.active?'<span class="chip r">'+(u.role==='admin'?'Admin':'Staff')+'</span>':'<span class="chip p">Not active</span>')+'</div>'+
+      '<label>Access <select><option value="off">Not active</option><option value="staff">Staff</option><option value="admin">Admin</option></select></label><div hidden></div>';
+    c.querySelector('b').textContent=u.name;c.querySelector('.meta span').textContent='Username: '+u.username;
+    const s=c.querySelector('select');s.value=u.active?u.role:'off';
+    s.onchange=async()=>{
+      try{await fdb.collection('users').doc(id).update(s.value==='off'?{active:false}:{active:true,role:s.value});msg(c.lastElementChild,'Saved.','ok')}
+      catch(e){msg(c.lastElementChild,'Could not save: '+e.message,'err')}
+    };
+    box.appendChild(c);
+  });
+}
+$('addUser').onsubmit=async e=>{
+  e.preventDefault();
+  const m=$('addMsg'),name=$('nuName').value.trim(),username=$('nuUser').value.trim().toLowerCase(),pw=$('nuPass').value,r=$('nuRole').value;
+  if(!name)return msg(m,'Enter the person\'s name.','err');
+  if(!/^[a-z0-9._-]{3,30}$/.test(username))return msg(m,'Username: 3–30 letters or numbers, no spaces.','err');
+  if(pw.length<6)return msg(m,'Password needs at least 6 characters.','err');
+  if(Object.values(users).some(u=>u.username===username))return msg(m,'That username is already taken.','err');
+  $('addBtn').disabled=true;
+  // A second Firebase instance creates the account without logging the admin out.
+  const tmp=firebase.apps.find(a=>a.name==='creator')||firebase.initializeApp(FIREBASE_CONFIG,'creator');
+  try{
+    const cred=await tmp.auth().createUserWithEmailAndPassword(toEmail(username),pw);
+    await fdb.collection('users').doc(cred.user.uid).set({name,username,role:r,active:true,createdAt:Date.now()});
+    await tmp.auth().signOut();
+    msg(m,name+' can now log in with username "'+username+'" and the password you set.','ok');
+    $('addUser').reset();
+  }catch(err){
+    msg(m,err.code==='auth/email-already-in-use'?'That username is already taken.':'Could not create the account: '+err.message,'err');
+  }finally{$('addBtn').disabled=false}
+};
+$('loginForm').onsubmit=async e=>{
+  e.preventDefault();
+  const m=$('loginMsg');$('loginBtn').disabled=true;
+  try{await auth.signInWithEmailAndPassword(toEmail($('lUser').value),$('lPass').value);$('lPass').value=''}
+  catch(err){msg(m,/invalid|wrong|not-found|credential/.test(err.code)?'Wrong username or password.':err.code==='auth/too-many-requests'?'Too many tries. Wait a few minutes and try again.':'Could not log in: '+err.message,'err')}
+  finally{$('loginBtn').disabled=false}
+};
+$('logout').onclick=$('logout2').onclick=()=>auth.signOut();
+$('pwForm').onsubmit=async e=>{
+  e.preventDefault();const m=$('pwMsg'),p=$('newPw').value;
+  if(p.length<6)return msg(m,'Password needs at least 6 characters.','err');
+  try{await auth.currentUser.updatePassword(p);$('newPw').value='';msg(m,'Password changed.','ok')}
+  catch(err){msg(m,err.code==='auth/requires-recent-login'?'For safety, log out, log in again, then change it.':'Could not change it: '+err.message,'err')}
+};
+
+/* ---------- boot ---------- */
+let fdb=null, usersLoaded=false, unsubs=[];
+seg($('period'),PERIODS,()=>period,k=>period=k);seg($('rtype'),TYPES,()=>rtype,k=>rtype=k);
+resetForm();$('from').value=iso(new Date(new Date().getFullYear(),new Date().getMonth(),1));$('to').value=today();
+renderAll();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+
+if(!window.firebase||!window.FIREBASE_CONFIG||!FIREBASE_CONFIG.apiKey||FIREBASE_CONFIG.apiKey.startsWith('PASTE')){
+  $('sync').textContent='Not set up';$('login').hidden=true;$('setupMsg').hidden=false;
+}else{
+  firebase.initializeApp(FIREBASE_CONFIG);
+  auth=firebase.auth();fdb=firebase.firestore();db=fdb;
+  fdb.enablePersistence({synchronizeTabs:true}).catch(()=>{}); // keeps working on weak signal
+  auth.onAuthStateChanged(u=>{
+    unsubs.forEach(f=>f());unsubs=[];requests=[];items=[];users={};usersLoaded=false;
+    me=u?u.uid:null;isOwner=!!u&&u.email===OWNER_EMAIL;
+    if(!u){$('sync').textContent='Logged out';renderAll();return}
+    const live=s=>{$('sync').textContent=s&&s.metadata&&s.metadata.fromCache?'Offline · will sync':'● Live'};
+    const fail=e=>{$('sync').textContent=e.code==='permission-denied'?'No access':'Connection lost'};
+    const started={};
+    const startData=()=>{ // only active accounts may read stock data
+      if(started.data||!role())return;started.data=1;
+      unsubs.push(fdb.collection('requests').orderBy('createdAt','desc').limit(1000).onSnapshot({includeMetadataChanges:true},s=>{requests=s.docs.map(x=>({id:x.id,...x.data()}));live(s);renderAll()},fail));
+      unsubs.push(fdb.collection('items').orderBy('createdAt','desc').limit(1000).onSnapshot({includeMetadataChanges:true},s=>{items=s.docs.map(x=>({id:x.id,...x.data()}));live(s);renderAll()},fail));
+    };
+    if(isOwner)unsubs.push(fdb.collection('users').onSnapshot(s=>{users={};s.docs.forEach(x=>users[x.id]=x.data());usersLoaded=true;startData();renderAll()},fail));
+    else unsubs.push(fdb.collection('users').doc(me).onSnapshot(s=>{users={};if(s.exists)users[me]=s.data();usersLoaded=true;startData();renderAll()},()=>{usersLoaded=true;renderAll()}));
+  });
+}
+</script>
+</body>
+</html>
